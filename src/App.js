@@ -3,10 +3,10 @@ import { Box } from "@chakra-ui/layout";
 import { IconButton } from "@chakra-ui/button";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { Link, Switch, Route } from "react-router-dom";
-import Materials from "./pages/Materials";
-import Home from "./pages/Home";
-import Equations from "./pages/Equations";
+import {Materials} from "./pages/Materials";
+import {Equations} from "./pages/Equations";
 import { AnimatePresence } from "framer-motion";
+import {Home} from "./pages/Home";
 
 function App() {
   return (
@@ -23,10 +23,10 @@ function App() {
             <MenuItem>Pagrindinis</MenuItem>
           </Link>
           <Link to="/medziagos">
-            <MenuItem>Medziagu Lentele</MenuItem>
+            <MenuItem>Medžiagų lentelė</MenuItem>
           </Link>
           <Link to="/formules">
-            <MenuItem>Formules</MenuItem>
+            <MenuItem>Formulės</MenuItem>
           </Link>
         </MenuList>
       </Menu>

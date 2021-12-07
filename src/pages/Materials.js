@@ -1,145 +1,88 @@
-import { Box, Container } from "@chakra-ui/layout";
-import React from "react";
+import {Box, Container} from "@chakra-ui/layout";
+import React, {useEffect, useState} from "react";
 import materialData from "../data/Data";
-import { motion } from "framer-motion";
+import {motion} from "framer-motion";
 
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  FormControl,
-  FormLabel,
-  Input,
+    Table,
+    Thead,
+    Tbody,
+    Tr,
+    Th,
+    Td,
+    FormControl,
+    FormLabel,
+    Input,
 } from "@chakra-ui/react";
 
-class Materials extends React.Component {
-  constructor(props) {
-    super(props);
-    document.title = "Medziagu lentele";
+export const Materials = () => {
+    const [data] = useState(materialData);
+    const [results, setResults] = useState(data);
+    const [loading, setLoading] = useState(true);
+    const [searchKeyword, setSearchKeyword] = useState(null);
+    const [ascending, setAscending] = useState(false);
+    const MotionRow = motion(Tr)
 
-    this.state = {
-      data: [],
-      results: [],
-      search: null,
-      loading: true,
-      nameSort: null,
-    };
+    useEffect(() => {
+      setLoading(true);
+        results.sort((a, b) => {
+            return ascending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+        });
+        setResults(results);
+        setLoading(false);
+    }, [ascending])
 
-    this.sortByAscending = this.sortByAscending.bind(this);
-    this.sortByDescending = this.sortByDescending.bind(this);
-  }
+    useEffect(() => {
+        if (!searchKeyword) {
+            setResults(data);
 
-  componentDidMount() {
-    this.setState({
-      data: materialData,
-      results: materialData,
-      loading: false,
-    });
-  }
-
-  sortByAscending() {
-    const names = this.state.data;
-
-    names.sort((a, b) => a.name.localeCompare(b.title));
-
-    this.setState({
-      results: names,
-    });
-  }
-
-  sortByDescending() {
-    const names = this.state.data;
-
-    names.sort((a, b) => b.name.localeCompare(a.title));
-
-    this.setState({
-      results: names,
-    });
-  }
-
-  async handleNameSearch(event) {
-    let value = event.target.value.toLowerCase();
-    let names = this.state.data;
-
-    var result = names.filter((str) => {
-      return str.name.toLowerCase().indexOf(value.toLowerCase()) >= 0;
-    });
-
-    this.setState({
-      results: result,
-    });
-  }
-
-  async handleNumberSearch(event) {
-    let value = event.target.value.toLowerCase();
-    let numbers = this.state.data;
-
-    var result = numbers.filter((str) => {
-      return str.tempK.toLowerCase().indexOf(value.toLowerCase()) >= 0;
-    });
-
-    this.setState({
-      results: result,
-    });
-  }
-
-  nameSearchRows() {
-    const MotionRow = motion(Tr);
-
-    const result = this.state.results.map((item, index) => (
-      <MotionRow key={index} whileHover={{ scale: 1.1 }} bgColor="#ffff">
-        <Td>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Td>
-        <Td isNumeric>{item.tempK}</Td>
-      </MotionRow>
-    ));
-    return result;
-  }
-
-  render() {
-    const MotionBox = motion(Box);
-
-    if (this.state.loading)
-      return (
-        <div className="container text-center pt-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="sr-only"></span>
-          </div>
-        </div>
-      );
+            return;
+        }
+        setLoading(true);
+        let result = data.filter((str) => {
+            return str.tempK.toLowerCase().indexOf(searchKeyword) >= 0 || str.name.toLowerCase().indexOf(searchKeyword) >= 0;
+        })
+        setResults(result);
+      setLoading(false);
+    }, [searchKeyword]);
 
     return (
-      <Container pb={3}>
-        <Box pb={3}>
-          <FormControl>
-            <FormLabel>Medziaga</FormLabel>
-            <Input
-              type="text"
-              onChange={(event) => this.handleNameSearch(event)}
-            />
-            <FormLabel>Pletimosi koeficientas</FormLabel>
-            <Input
-              type="number"
-              onChange={(event) => this.handleNumberSearch(event)}
-            />
-          </FormControl>
-        </Box>
-        <Box borderWidth="1px" borderRadius="lg">
-          <Table>
-            <Thead>
-              <Tr>
-                <Th onClick={this.sortByAscending()}>Medziaga</Th>
-                <Th isNumeric>Alpha * 10⁻⁶K⁻¹</Th>
-              </Tr>
-            </Thead>
-            <Tbody>{this.nameSearchRows()}</Tbody>
-          </Table>
-        </Box>
-      </Container>
+        <Container pb={3}>
+            <Box pb={3}>
+                <FormControl>
+                    <FormLabel>Medžiaga</FormLabel>
+                    <Input
+                        type="text"
+                        onChange={(event) => setSearchKeyword(event.target.value.toLowerCase())}
+                    />
+                    <FormLabel>Plėtimosi koeficientas</FormLabel>
+                    <Input
+                        type="number"
+                        onChange={(event) => setSearchKeyword(event.target.value.toLowerCase())}
+                    />
+                </FormControl>
+            </Box>
+            <Box borderWidth="1px" borderRadius="lg">
+                <Table>
+                    <Thead>
+                        <Tr>
+                            <Th onClick={() => setAscending(!ascending)}>Medžiaga</Th>
+                            <Th isNumeric>Alpha * 10⁻⁶K⁻¹</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>{!loading && results.map((item, index) => (
+                        <MotionRow key={index} whileHover={{scale: 1.1}} bgColor="#ffff">
+                            <Td>{item.name.charAt(0).toUpperCase() + item.name.slice(1)}</Td>
+                            <Td isNumeric>{item.tempK}</Td>
+                        </MotionRow>
+                    ))}
+                      {loading && (
+                          <MotionRow>
+                            <Td span="2">Loading..</Td>
+                          </MotionRow>
+                      )}</Tbody>
+                </Table>
+            </Box>
+        </Container>
     );
-  }
 }
-
-export default Materials;
