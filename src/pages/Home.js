@@ -123,12 +123,12 @@ export const Home = () => {
                 <Chart>
                     <ChartValueAxis>
                         <ChartValueAxisItem>
-                            <ChartValueAxisTitle text="Pailgėjimas, Δ mm"/>
+                            <ChartValueAxisTitle text="ΔL, mm"/>
                         </ChartValueAxisItem>
                     </ChartValueAxis>
                     <ChartCategoryAxis>
                         <ChartCategoryAxisItem categories={lengths.map((length) => length.temperature)}>
-                            <ChartCategoryAxisTitle text="Temperatūra"/>
+                            <ChartCategoryAxisTitle text="Temperatūra, °C"/>
                         </ChartCategoryAxisItem>
                     </ChartCategoryAxis>
                     <ChartSeries>
