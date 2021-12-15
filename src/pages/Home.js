@@ -1,4 +1,4 @@
-import {Center, Container} from "@chakra-ui/layout";
+import {Box, Center, Container} from "@chakra-ui/layout";
 import React, {useEffect, useState} from "react";
 import {FormControl, FormLabel} from "@chakra-ui/form-control";
 import {Input} from "@chakra-ui/input";
@@ -12,25 +12,28 @@ import {
     ChartCategoryAxisItem, ChartCategoryAxisTitle, ChartValueAxisTitle, ChartValueAxisItem, ChartValueAxis
 } from "@progress/kendo-react-charts";
 import '@progress/kendo-theme-default/dist/all.css';
-import {all, create} from "mathjs";
+const Big = require('big-js');
 
 export const Home = () => {
     document.title = "Pagrindinis";
 
     const [temperatureStep, setTemperatureStep] = useState(5);
-    const [initialLength, setInitialLength] = useState(3630);
-    const [materialCoefficient, setMaterialCoefficient] = useState(0);
+    const [initialLength, setInitialLength] = useState(363);
+    const [materialCoefficient, setMaterialCoefficient] = useState(1.3);
     const [initialTemperature, setInitialTemperature] = useState(26);
     const [currentHeatedTemperature, setCurrentHeatedTemperature] = useState(initialTemperature);
     const [goalTemperature, setGoalTemperature] = useState(70);
     const [heating, setHeating] = useState(false);
     const [lengths, setLengths] = useState([]);
+    const [deltaL, setDeltaL] = useState(0);
 
     useEffect(() => {
         if (heating && currentHeatedTemperature < goalTemperature) {
             setTimeout(() => {
                 let newTemperature = currentHeatedTemperature + temperatureStep;
-                setLengths([...lengths, {temperature: newTemperature, length: calculateDeltaT(newTemperature)}]);
+                let deltaL = calculateDeltaT(newTemperature);
+                setDeltaL(deltaL);
+                setLengths([...lengths, {temperature: newTemperature, length: deltaL}]);
                 setCurrentHeatedTemperature(newTemperature);
             }, 500);
         }
@@ -47,26 +50,12 @@ export const Home = () => {
     }
 
     const calculateDeltaT = (heatedTemperature) => {
-        // TODO suapvalina reiksmes, neina normaliai apskaiciuoti
-        // 3630*(10^-3)*(1+16.5*(10^-6)*44 - pavyzdys pagal musu labora, kai temp. skirtumas 44 laipsniai
 
-        const math = create(all, {
-            number: 'BigNumber',
-            precision: 20
-        })
+        let temperaturesDiff = heatedTemperature - initialTemperature;
+        let result = Big(initialLength).times(materialCoefficient).times(Big(10).pow(-6)).times(temperaturesDiff);
+        console.log(result.toFixed(5));
 
-        let L0 = math.multiply(initialLength, math.pow(10, -3));
-        let temperaturesDiff = math.subtract(heatedTemperature, initialTemperature);
-        let exactCoefficient = math.multiply(materialCoefficient, math.pow(10, -6));
-        let multiplicationInParentheses = math.multiply(exactCoefficient, temperaturesDiff);
-        console.log(L0);
-        console.log(temperaturesDiff);
-        console.log(exactCoefficient);
-        console.log(multiplicationInParentheses);
-
-        let result = math.multiply(L0, math.sum(1, multiplicationInParentheses));
-        console.log(result);
-        return result;
+        return result.toFixed(5);
     }
 
     return (
@@ -121,10 +110,14 @@ export const Home = () => {
                                 })}
                             </Select>
                         </FormControl>
-                        <FormControl>
+                        <FormControl marginBottom="10px" marginTop="10px">
                             <Button disabled={heating && ('disabled')}
                                     onClick={() => startHeating()}>Start</Button>
                         </FormControl>
+
+                        <Box>Strypo ilgis: {Big(initialLength).plus(deltaL).toFixed(5)} mm.</Box>
+                        <Box borderWidth="2px" borderRadius="1g" width={Big(initialLength).plus(deltaL).toFixed(5) + "px"} bgColor="black">
+                        </Box>
                     </Container>
                 </Center>
             </GridItem>
@@ -132,7 +125,7 @@ export const Home = () => {
                 <Chart>
                     <ChartValueAxis>
                         <ChartValueAxisItem>
-                            <ChartValueAxisTitle text="Strypo ilgis mm"/>
+                            <ChartValueAxisTitle text="Pailgėjimas, Δ mm"/>
                         </ChartValueAxisItem>
                     </ChartValueAxis>
                     <ChartCategoryAxis>
