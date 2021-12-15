@@ -50,10 +50,8 @@ export const Home = () => {
     }
 
     const calculateDeltaT = (heatedTemperature) => {
-
         let temperaturesDiff = heatedTemperature - initialTemperature;
         let result = Big(initialLength).times(materialCoefficient).times(Big(10).pow(-6)).times(temperaturesDiff);
-        console.log(result.toFixed(5));
 
         return result.toFixed(5);
     }
@@ -116,7 +114,7 @@ export const Home = () => {
                         </FormControl>
 
                         <Box>Strypo ilgis: {Big(initialLength).plus(deltaL).toFixed(5)} mm.</Box>
-                        <Box borderWidth="2px" borderRadius="1g" width={Big(initialLength).plus(deltaL).toFixed(5) + "px"} bgColor="black">
+                        <Box borderWidth="1px" height="5px" width={Big(initialLength).plus(deltaL).toFixed(5) + "px"} bgColor={heating || currentHeatedTemperature >= goalTemperature ? "rgba(255,0,0," + currentHeatedTemperature / goalTemperature + ")" : "black"}>
                         </Box>
                     </Container>
                 </Center>
